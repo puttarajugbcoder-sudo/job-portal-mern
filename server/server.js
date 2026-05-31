@@ -2,7 +2,7 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const connectDB = require("./config/db")
-
+const authRoutes = require("./routes/authRoutes");
 dotenv.config();
 connectDB();
 
@@ -11,6 +11,8 @@ const app = express();
 
 //middleware to parse incoming request body in JSON format.Express converts incoming JSON into a JavaScript object. without this middleware, req.body would be undefined for JSON requests.
 app.use(express.json());
+
+app.use("/api/auth", authRoutes);
 
 //Used to fetch data app.get() method is used
 //Used to send/save data app.post() method is used
