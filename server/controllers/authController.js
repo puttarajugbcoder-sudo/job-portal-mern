@@ -1,6 +1,7 @@
 const User = require('../models/User');
-const bycrypt = require('bcryptjs');
+const bcrypt = require('bcryptjs');
 
+//New user registration
 const registerUser = async (req, res) => {
     try {
         const { name, email, password, role } = req.body;
@@ -11,8 +12,8 @@ const registerUser = async (req, res) => {
             return res.status(400).json({ message: "User already exists" });
         }
 
-        const salt =await bycrypt.genSalt(10);
-        const hashedPassword = await bycrypt.hash(password, salt);
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
 
         const user = await User.create({
             name,
@@ -26,4 +27,34 @@ const registerUser = async (req, res) => {
         return res.status(500).json({ message: error.message });
     }
 }
-module.exports = { registerUser };
+
+// Login user
+const loginUser = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return res.status(400).json(
+                { message: "inavalid email" }
+            )
+        }
+
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(400).json({
+                message: "inavelid password"
+            })
+        }
+        res.status(200).json({
+            message: 'login succesfull'
+        })
+
+    }
+    catch (error) {
+        res.status(500).json({
+            message: error.message
+        })
+    }
+}
+module.exports = { registerUser, loginUser };
